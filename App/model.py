@@ -48,19 +48,19 @@ def newCatalog():
                'categories': None,
                'video_category':None}
     catalog['videos'] = lt.newList('SINGLE_LINKED', compareViews)
-    catalog['id'] = mp.newMap(maptype='PROBING',
-                                   loadfactor=0.8,
+    catalog['id'] = mp.newMap(maptype='CHAINING',
+                                   loadfactor=6.0,
                                    comparefunction=compareMapVideoIds) #size para dias 
     catalog['categories'] = mp.newMap(34,
-                                   maptype='PROBING',
-                                   loadfactor=0.8,
+                                   maptype='CHAINING',
+                                   loadfactor=6.0,
                                    comparefunction=compareMapVideoIds)
     catalog['countries'] = mp.newMap(10,
-                                   maptype='PROBING',
-                                   loadfactor=0.8,
+                                   maptype='CHAINING',
+                                   loadfactor=6.0,
                                    comparefunction=compareMapCountry)
-    catalog['video_category'] = mp.newMap(maptype='PROBING',
-                                   loadfactor=0.8,
+    catalog['video_category'] = mp.newMap(maptype='CHAINING',
+                                   loadfactor=6.0,
                                    comparefunction=compareMapVideoIds)
     return catalog
 # Funciones para agregar informacion al catalogo

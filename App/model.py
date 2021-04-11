@@ -140,7 +140,7 @@ def getVideosByCountry(catalog, country):
     """
     exist = mp.contains(catalog['countries'], country) 
     if exist:
-        entry = lt.get(catalog['countries'], country)
+        entry = mp.get(catalog['countries'], country)
         country1 = me.getValue(entry)
     else: 
         country1="No existe ese Pais"
@@ -230,6 +230,13 @@ def compareMapCountry(countryname, entry):
 def sortLikes(catalog):
     sub_list = catalog.copy()
     sorted_list = qs.sort(sub_list, compareLikes)
+    #stop_time = time.process_time()
+    #elapsed_time_mseg = (stop_time - start_time)*1000
+    return sorted_list
+
+def sortVideos(catalog):
+    sub_list = catalog.copy()
+    sorted_list = qs.sort(sub_list, compareViews)
     #stop_time = time.process_time()
     #elapsed_time_mseg = (stop_time - start_time)*1000
     return sorted_list

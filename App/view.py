@@ -25,7 +25,9 @@ import sys
 import controller
 from DISClib.ADT import list as lt
 assert cf
-
+from DISClib.ADT import map as mp
+from DISClib.DataStructures import listiterator as lit
+assert cf
 
 """
 La vista se encarga de la interacción con el usuario
@@ -72,13 +74,12 @@ def printinga(ordlist,total):
         print ("Titulo: {0}\nChannel_title:{1}\ntrending_date: {2}\nCountry: {3}\nViews: {4}\n Likes:{5}\n Dislikes:{6}\n ".format(video['title'],video['channel_title'],video['trending_date'],video['country'],video['views'],video['likes'],video['dislikes']))
         
 def printing(ordlist,total,num): 
-
-        for i in range(1,total+1):
-            video=lt.getElement(ordlist,i)
-            if num==2: 
-                print ("Title: {0}\nChannel_title:{1}\nPublish_Time:{2}\nViews: {3}\nLikes: {4}\nDislikes: {5}\nTags: {6}\n".format(video['title'],video['channel_title'],video['publish_time'],video['views'], video['likes'], video['dislikes'], video['tags']))
-            elif num==1:
-                print ("Titulo: {0}\ntrending_date: {1}\n Nombre del canal:{2}\n publish_time: {3}\n Views: {4}\n Likes:{5}\n Dislikes:{6}\n ".format(video['title'],video['trending_date'],video['channel_title'],video['publish_time'],video['views'],video['likes'],video['dislikes']) )
+            for i in range(1,total+1):
+                video=lt.getElement(ordlist,1)
+                if num==2: 
+                    print ("Title: {0}\nChannel_title:{1}\nPublish_Time:{2}\nViews: {3}\nLikes: {4}\nDislikes: {5}\nTags: {6}\n".format(video['title'],video['channel_title'],video['publish_time'],video['views'], video['likes'], video['dislikes'], video['tags']))
+                elif num==1:
+                    print ("Titulo: {0}\ntrending_date: {1}\n Nombre del canal:{2}\n publish_time: {3}\n Views: {4}\n Likes:{5}\n Dislikes:{6}\n ".format(video['title'],video['trending_date'],video['channel_title'],video['publish_time'],video['views'],video['likes'],video['dislikes']) )
 
 
 
@@ -112,7 +113,7 @@ while True:
         category=" " + (str(input("Ingrese la categoria de eleccion:")))
         number=int(input("Ingrese la cantidad de videos que quiere ver:"))
         result=controller.getVideosbyCat(catalog,country,category)
-        printing(result,number,1)
+        printing(result[0],number,1)
     elif int(inputs[0]) == 3:
         country = input ("Ingrese el país para el cual desea realizar la consulta: ")
         answer = controller.Req2(catalog, country)

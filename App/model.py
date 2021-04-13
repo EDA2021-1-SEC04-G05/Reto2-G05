@@ -214,7 +214,6 @@ def getVideosbyCat(catalog,countryname,category):
     return re
 def getTendencyTime(catalog,category):
     vid_cat=getCat(catalog,category)
-    print(vid_cat)
     if vid_cat != 0:
         tend = catalog['tendency']
         a=tend['table']
@@ -233,6 +232,30 @@ def getTendencyTime(catalog,category):
     else: 
         tendm="No existe esa categoria"
     return tendm   
+
+def Req4(catalog,country, tag):
+    videosCountry= getVideosByCountry(catalog, country)
+    result=lt.newList('ARRAY_LIST',compareLikes)
+    b=lit.newIterator(videosCountry['videos'])
+    while lit.hasNext(b):
+        e=lit.next(b)
+        if tag in e['tags']:
+            dic={}
+            r= lt.isPresent(result,e['title'])
+            if r==0:
+                dic['title']=e['title']
+                dic['channel_title']=e['channel_title']
+                dic['publish_time']=e['publish_time']
+                dic['views']=e['views']
+                dic['likes']=e['likes']
+                dic['dislikes']=e['dislikes']
+                dic['tags']=e['tags']
+                lt.addLast(result,dic)
+    sort=sortLikes(result)
+    #print(lt.getElement(dic_sort,1))
+    return sort
+
+
            
 # Funciones utilizadas para comparar elementos dentro de una lista
 
@@ -267,6 +290,7 @@ def compareMapCountry(countryname, entry):
         return 1
     else:
         return -1
+
 
 def sortLikes(catalog):
     sub_list = catalog.copy()

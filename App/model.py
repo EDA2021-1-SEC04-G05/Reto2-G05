@@ -46,7 +46,8 @@ def newCatalog():
                 'countries':None,
                 'id': None,
                'categories': None,
-               'video_category':None}
+               'video_category':None,
+               'tendency':None}
     catalog['videos'] = lt.newList('SINGLE_LINKED', compareViews)
     catalog['id'] = mp.newMap(maptype='PROBING',
                                    loadfactor=0.8,
@@ -62,6 +63,9 @@ def newCatalog():
     catalog['video_category'] = mp.newMap(maptype='PROBING',
                                    loadfactor=0.8,
                                    comparefunction=compareMapVideoIds)
+    catalog['tendency'] = mp.newMap(maptype='PROBING',
+                                   loadfactor=0.8,
+                                   comparefunction=compareMapVideoIds)       
     return catalog
 # Funciones para agregar informacion al catalogo
 def addVideo(catalog, video):
@@ -71,12 +75,13 @@ def addVideo(catalog, video):
     exist = mp.contains(catalog['id'], video['video_id'])
     if exist:
         entry = mp.get(catalog['id'],video['video_id'])
-        vid_id = me.getValue(entry)
+        vid_id = me.getValue(entry)  
     else:
         mp.put(catalog['id'], video['video_id'], video)
-        vid_id= mp.get(catalog['id'],  video['video_id'])
+        vid_id= mp.put(catalog['id'],  video['video_id'],video)
     lt.addLast(catalog['videos'], video)
     addVideoCountry(catalog,countryname, video)
+    addTend(catalog,video)
     vid_cat=video['category_id']
     exist = mp.contains(catalog['video_category'], vid_cat)
     if exist:
@@ -86,9 +91,18 @@ def addVideo(catalog, video):
         li=lt.newList('SINGLE_LINKED', compareViews)#ojo aca esto 
         mp.put(catalog['video_category'], vid_cat, li)
     lt.addLast(li,video)
+  
 
+def newId(video): 
+    dic={}
+    dic['title']=e['title']
+    dic['channel_title']=e['channel_title']
+    dic['category_id']=e['category_id']
+    dic['days']=1
+    lt.addLast(x,dic)
+    lt.addLast(l,e['title'])
+    return dic 
 
-    
 
 def addVideoCountry(catalog, countryname, video):
     """
@@ -132,7 +146,28 @@ def newCat(name, id):
     cat['name'] = name
     cat['id'] = id
     return cat
-
+def newTend(e):
+    dic={}
+    dic['title']=e['title']
+    dic['channel_title']=e['channel_title']
+    dic['category_id']=e['category_id']
+    dic['days']=1
+    return dic
+def addTend(catalog,video):
+    tend = catalog['tendency']
+    
+    exist = mp.contains(tend, video['video_id'])
+    if exist:
+        entry = mp.get(tend, video['video_id'])
+        ved = me.getValue(entry)
+        vef=ved['elements']
+        a=vef[0]
+        a['days']+=1
+    else:
+        li=lt.newList('ARRAY_LIST',compareDays)
+        ved = newTend(video)
+        lt.addLast(li,ved)
+        mp.put(tend, video['video_id'], li)   
 # Funciones para creacion de datos
 def getVideosByCountry(catalog, country):
     """
@@ -170,7 +205,6 @@ def getVideosbyCat(catalog,countryname,category):
     country=getVideosByCountry(catalog,countryname) #o(1)/o(n)
     result=lt.newList('ARRAY_LIST',compareViews)
     cat_id=getCat(catalog,category)
-    countrysize=lt.size(country['videos'])
     b=lit.newIterator(country['videos'])
     while lit.hasNext(b):
         video=lit.next(b)
@@ -180,20 +214,26 @@ def getVideosbyCat(catalog,countryname,category):
     return re
 def getTendencyTime(catalog,category):
     vid_cat=getCat(catalog,category)
+    print(vid_cat)
     if vid_cat != 0:
-        exist = mp.contains(catalog['video_category'], vid_cat)
-        if exist:
-            entry = mp.get(catalog['video_category'],vid_cat)
-            li = me.getValue(entry)
+        tend = catalog['tendency']
+        a=tend['table']
+        tendm=''
+        tendtime=0
+        for e in a['elements']:
+            le=me.getValue(e)
+            if le!=None:
+                elements=le['elements']
+                elements=elements[0]
+                if elements['category_id']==vid_cat:
+                    if elements['days']>tendtime:
+                        tendm=elements
+                        tendtime=elements['days']
 
-    a=lit.newIterator(catalog['id'])
-    l=lt.newList("ARRAY_LIST",compareName)
-    x=lt.newList("ARRAY_LIST")
-    while lit.hasNext(a):
-        e=lit.next(a)
-        siz=mp.size
-    return lt.getElement(dic_sort,1)
-
+    else: 
+        tendm="No existe esa categoria"
+    return tendm   
+           
 # Funciones utilizadas para comparar elementos dentro de una lista
 
 # Funciones de ordenamiento
@@ -201,7 +241,8 @@ def compareViews (video1,video2):
     return (float(video1['views']) > float(video2['views']))
 def compareLikes (video1,video2):
     return (float(video1['likes']) > float(video2['likes']))
-
+def compareDays (video1,video2):
+    return (float(video1['days']) > float(video2['days']))
 def compareMapVideoIds(id, entry):
     """
     Compara dos ids de videos, id es un identificador

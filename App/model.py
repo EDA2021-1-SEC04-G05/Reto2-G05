@@ -48,9 +48,6 @@ def newCatalog():
                'video_category':None,
                'tendency':None}
     catalog['videos'] = lt.newList('SINGLE_LINKED', compareViews)
-    catalog['id'] = mp.newMap(maptype='CHAINING',
-                                   loadfactor=1.5,
-                                   comparefunction=compareMapVideoIds) #size para dias 
     catalog['categories'] = mp.newMap(34,
                                    maptype='CHAINING',
                                    loadfactor=1.5,
@@ -71,13 +68,6 @@ def addVideo(catalog, video):
     # Se adiciona el video a la lista de videos
     #lt.addLast(catalog['videos'], video)
     countryname=video['country']
-    exist = mp.contains(catalog['id'], video['video_id'])
-    if exist:
-        entry = mp.get(catalog['id'],video['video_id'])
-        vid_id = me.getValue(entry)  
-    else:
-        mp.put(catalog['id'], video['video_id'], video)
-        vid_id= mp.put(catalog['id'],  video['video_id'],video)
     lt.addLast(catalog['videos'], video)
     addVideoCountry(catalog,countryname, video)
     addTend(catalog,video)

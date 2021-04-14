@@ -44,27 +44,26 @@ los mismos.
 def newCatalog():
     catalog = {'videos': None,
                 'countries':None,
-                'id': None,
                'categories': None,
                'video_category':None,
                'tendency':None}
     catalog['videos'] = lt.newList('SINGLE_LINKED', compareViews)
     catalog['id'] = mp.newMap(maptype='CHAINING',
-                                   loadfactor=6.0,
+                                   loadfactor=1.5,
                                    comparefunction=compareMapVideoIds) #size para dias 
     catalog['categories'] = mp.newMap(34,
                                    maptype='CHAINING',
-                                   loadfactor=6.0,
+                                   loadfactor=1.5,
                                    comparefunction=compareMapVideoIds)
     catalog['countries'] = mp.newMap(10,
                                    maptype='CHAINING',
-                                   loadfactor=6.0,
+                                   loadfactor=1.5,
                                    comparefunction=compareMapCountry)
     catalog['video_category'] = mp.newMap(maptype='CHAINING',
-                                   loadfactor=6.0,
+                                   loadfactor=1.5,
                                    comparefunction=compareMapVideoIds)
     catalog['tendency'] = mp.newMap(maptype='PROBING',
-                                   loadfactor=0.8,
+                                   loadfactor=0.2,
                                    comparefunction=compareMapVideoIds)       
     return catalog
 # Funciones para agregar informacion al catalogo
@@ -151,6 +150,7 @@ def newTend(e):
     dic['title']=e['title']
     dic['channel_title']=e['channel_title']
     dic['category_id']=e['category_id']
+    dic['country']=e['country']
     dic['days']=1
     return dic
 def addTend(catalog,video):
@@ -190,6 +190,7 @@ def getCat(catalog,category):
         cat_id=0
         
     return cat_id
+
 
 # Funciones de consulta
 def getVideosbyCatLikes(catalog,category):
@@ -232,8 +233,27 @@ def getTendencyTime(catalog,category):
     else: 
         tendm="No existe esa categoria"
     return tendm   
+def Req2 (catalog, country):
+    videosCountry= getVideosByCountry(catalog, country)
+    if videosCountry!= None:
+        tend = catalog['tendency']
+        a=tend['table']
+        tendm=''
+        tendtime=0
+        for e in a['elements']:
+            le=me.getValue(e)
+            if le!=None:
+                elements=le['elements']
+                elements=elements[0]
+                if elements['country']==country:
+                    if elements['days']>tendtime:
+                        tendm=elements
+                        tendtime=elements['days']
+    else: 
+        tendm="No existe esa categoria"
+    return tendm
 
-def Req4(catalog,country, tag):
+def Req4(catalog,country,tag):
     videosCountry= getVideosByCountry(catalog, country)
     result=lt.newList('ARRAY_LIST',compareLikes)
     b=lit.newIterator(videosCountry['videos'])
@@ -241,7 +261,7 @@ def Req4(catalog,country, tag):
         e=lit.next(b)
         if tag in e['tags']:
             dic={}
-            r= lt.isPresent(result,e['title'])
+            r= lt.isPresent(result,e)
             if r==0:
                 dic['title']=e['title']
                 dic['channel_title']=e['channel_title']
@@ -266,6 +286,10 @@ def compareLikes (video1,video2):
     return (float(video1['likes']) > float(video2['likes']))
 def compareDays (video1,video2):
     return (float(video1['days']) > float(video2['days']))
+def compareNames(video1, video2):
+    if (video1['title'].lower() == video2['title'].lower()):
+        return True
+    return False
 def compareMapVideoIds(id, entry):
     """
     Compara dos ids de videos, id es un identificador
